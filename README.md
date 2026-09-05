@@ -11,13 +11,10 @@ ou une liste de ports courants.
 > demande explicitement le flag `--i-have-authorization` avant de lancer un
 > scan, comme rappel.
 
+
 ## Pourquoi ce projet
 
-Étudiant en cybersécurité, je construis des petits outils pratiques pour
-mon portfolio, en parallèle de ma pratique sur TryHackMe, OWASP Juice Shop
-et des CTF. Le scan de ports est une des bases de la reconnaissance réseau
-en pentest — ce projet me sert à en comprendre le fonctionnement de A à Z
-plutôt que de me contenter d'utiliser Nmap sans savoir ce qu'il fait.
+Le scan de ports est une des bases de la reconnaissance réseau en pentest. Ce projet vise à comprendre son fonctionnement de A à Z (résolution DNS, sockets TCP, multithreading) plutôt que de se contenter d'utiliser Nmap en boîte noire.
 
 ## Fonctionnement
 
@@ -59,21 +56,19 @@ python portscanner.py --target 127.0.0.1 --ports 1-1024 --i-have-authorization
 ### Exemple
 
 ```bash
-python portscanner.py --target 127.0.0.1 --ports 1-9000 --i-have-authorization
+python portscanner.py --target scanme.nmap.org --ports 1-1000 --i-have-authorization
 ```
 
-```
-PortPeek — scanning 127.0.0.1 (127.0.0.1)
-Ports: 9000 | Threads: 100 | Timeout: 0.5s
-Started at 2026-09-05 19:25:53
+Test effectué contre [scanme.nmap.org](https://nmap.org/book/testing.html), la cible de test officiellement fournie par les créateurs de Nmap pour s'entraîner légalement au scan réseau.
 
-PORT    STATE   SERVICE / BANNER
-22      open    SSH
-80      open    HTTP
-8765    open    unknown
+![Exemple de scan](scan-example.png)
 
-Scan completed in 1.24 seconds. 3 open port(s) found.
-```
+**Interprétation du résultat :**
+
+- Sur les 1000 ports testés (1 à 1000), seuls **2 sont ouverts** — le reste est fermé ou filtré, ce qui est cohérent avec une machine correctement sécurisée.
+- **Port 22 (SSH)** : le service s'est annoncé de lui-même dès la connexion, ce qui a permis à PortPeek de capturer sa bannière exacte (`OpenSSH_6.6.1p1` sur Ubuntu). En pentest réel, cette information servirait ensuite à vérifier si cette version précise possède des vulnérabilités connues (CVE).
+- **Port 80 (HTTP)** : ouvert également, mais sans bannière capturée — les serveurs web n'envoient rien tant qu'ils ne reçoivent pas une vraie requête. PortPeek retombe alors sur le nom de service générique associé au port.
+- Le scan complet a pris **3,27 secondes** grâce au multithreading — une version séquentielle (un port à la fois) aurait pris plusieurs minutes sur la même plage.
 
 ## Structure du projet
 
